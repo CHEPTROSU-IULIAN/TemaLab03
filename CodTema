@@ -1,0 +1,134 @@
+internal class win : GameWindow
+    {
+
+        bool showTri = true;
+        KeyboardState lastKeyPress;
+        private const int XYZ_SIZE = 100;
+
+        private Color col = Color.Red;
+        private Color col2 = Color.Yellow;
+        private Color col3 = Color.Gray;
+
+  
+
+        private win() : base(800, 600, new GraphicsMode(32, 24, 0, 8))
+        {
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+
+            GL.ClearColor(Color.DarkBlue);
+            GL.Enable(EnableCap.DepthTest);
+            GL.Hint(HintTarget.PolygonSmoothHint, HintMode.Nicest);
+            Console.WriteLine("\n Q, W, E");
+  
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+
+            GL.Viewport(0, 0, Width, Height);
+
+            double aspect_ratio = Width / (double)Height;
+
+            Matrix4 perspective = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, (float)aspect_ratio, 1, 64);
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.LoadMatrix(ref perspective);
+
+            Matrix4 lookat = Matrix4.LookAt(30, 30, 30, 0, 0, 0, 0, 1, 0);
+            GL.MatrixMode(MatrixMode.Modelview);
+            GL.LoadMatrix(ref lookat);
+
+            showTri = true;
+        }
+
+        protected override void OnUpdateFrame(FrameEventArgs e)
+        {
+            base.OnUpdateFrame(e);
+
+            KeyboardState keyboard = Keyboard.GetState();
+            MouseState mouse = Mouse.GetState();
+            if (keyboard[Key.Escape])
+            {
+                Exit();
+                return;
+            }
+    
+            else if(keyboard[Key.Q])
+            {
+                col = col2 = col3 = Color.Green;
+                Console.WriteLine("\nVERTEXURI ROSU");
+            }
+            else if (keyboard[Key.W])
+            {
+                col = col2 = col3 = Color.Red;
+                Console.WriteLine("\nVERTEXURI VERZI");
+            }
+            else if (keyboard[Key.E])
+            {
+                col = col2 = col3 = Color.Yellow;
+                Console.WriteLine("\nVERTEXURI ALBASTRE");
+            }
+            lastKeyPress = keyboard;
+        }
+
+        protected override void OnRenderFrame(FrameEventArgs e)
+        {
+            base.OnRenderFrame(e);
+
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+            DrawTri();
+            DrawAxes();
+            
+
+            if (showTri == true)
+            {
+                GL.PushMatrix();
+                DrawTri();
+                GL.PopMatrix();
+            }
+            SwapBuffers();
+        }
+
+        private void DrawAxes()
+        {
+            GL.Begin(PrimitiveType.Lines);
+            GL.Color3(Color.Red);
+            GL.Vertex3(0, 0, 0);
+            GL.Vertex3(XYZ_SIZE, 0, 0);
+            GL.Color3(Color.Yellow);
+            GL.Vertex3(0, 0, 0);
+            GL.Vertex3(0, XYZ_SIZE, 0); ;
+            GL.Color3(Color.Green);
+            GL.Vertex3(0, 0, 0);
+            GL.Vertex3(0, 0, XYZ_SIZE);
+            GL.End();
+        }
+        private void DrawTri()
+        {
+            GL.Begin(PrimitiveType.Triangles);
+            
+               GL.Color3(col);
+               GL.Vertex3(15f, -0.5f, -5f);
+               GL.Color3(col2);
+               GL.Vertex3(-5f, 6f, -5f);
+               GL.Color3(col3);
+               GL.Vertex3(-5f, -5f, 8f);
+
+            GL.End();
+        }
+
+        [STAThread]
+        static void Main(string[] args)
+        {
+
+            using (win example = new win())
+            {
+                example.Run(30.0, 0.0);
+            }
+
+        }
